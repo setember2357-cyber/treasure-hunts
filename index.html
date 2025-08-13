@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 보물찾기 대회</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-group label {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .input-group input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .quiz-container {
+            display: none;
+        }
+        
+        .question {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+        
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .option.selected {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #feca57;
+        }
+        
+        .option.correct {
+            background: rgba(46, 213, 115, 0.3);
+            border-color: #2ed573;
+        }
+        
+        .option.wrong {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: #ff6b6b;
+        }
+        
+        .leaderboard {
+            display: none;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .leaderboard-item:first-child {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .leaderboard-item:nth-child(2) {
+            background: rgba(192, 192, 192, 0.3);
+        }
+        
+        .leaderboard-item:nth-child(3) {
+            background: rgba(205, 127, 50, 0.3);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(45deg, #2ed573, #1e90ff);
+            transition: width 0.3s ease;
+        }
+        
+        .score-display {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 1.8em;
+            color: #feca57;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .current-rank {
+            text-align: center;
+            font-size: 1.3em;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 2px solid #feca57;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #feca57;
+            animation: fall 3s linear infinite;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 로그인 화면 -->
+        <div id="loginScreen">
+            <div class="header">
+                <h1>🏆 보물찾기 대회</h1>
+                <p>NFC 카드를 찾아 퀴즈에 도전하세요!</p>
+            </div>
+            
+            <div class="card">
+                <div class="login-form">
+                    <div class="input-group">
+                        <label for="userName">참가자 이름</label>
+                        <input type="text" id="userName" placeholder="이름을 입력하세요">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="stationId">스테이션 번호</label>
+                        <input type="number" id="stationId" placeholder="NFC 카드의 번호 (1-10)" min="1" max="10">
+                    </div>
+                    
+                    <button class="btn" onclick="startQuiz()">퀴즈 시작!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quizScreen" class="quiz-container">
+            <div class="header">
+                <h2>🎯 퀴즈 도전</h2>
+                <div class="timer" id="timer">30</div>
+                <div class="current-rank" id="currentRank">현재 순위: -위</div>
+            </div>
+            
+            <div class="card">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                
+                <div class="question" id="question"></div>
+                
+                <div class="options" id="options"></div>
+                
+                <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">다음 문제</button>
+                <button class="btn" id="finishBtn" onclick="showResults()" style="display: none;">결과 보기</button>
+            </div>
+        </div>
+
+        <!-- 결과 및 순위 화면 -->
+        <div id="resultsScreen" class="leaderboard hidden">
+            <div class="header">
+                <h2>🏆 최종 결과</h2>
+            </div>
+            
+            <div class="card">
+                <div class="score-display" id="finalScore"></div>
+                <div class="current-rank" id="finalRank"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">🏅 실시간 순위표</h3>
+                <div id="leaderboardList"></div>
+            </div>
+            
+            <div class="card">
+                <button class="btn" onclick="restartGame()">다시 도전하기</button>
+                <button class="btn" onclick="showLeaderboard()" style="margin-left: 10px;">순위표 새로고침</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        // 게임 데이터
+        const quizData = {
+            1: [
+                {
+                    question: "한국의 수도는 어디인가요?",
+                    options: ["서울", "부산", "대구", "인천"],
+                    correct: 0
+                },
+                {
+                    question: "지구에서 가장 큰 대륙은?",
+                    options: ["아프리카", "아시아", "유럽", "북아메리카"],
+                    correct: 1
+                }
+            ],
+            2: [
+                {
+                    question: "태양계에서 가장 큰 행성은?",
+                    options: ["지구", "화성", "목성", "토성"],
+                    correct: 2
+                },
+                {
+                    question: "1년은 몇 일인가요?",
+                    options: ["364일", "365일", "366일", "367일"],
+                    correct: 1
+                }
+            ],
+            3: [
+                {
+                    question: "한국의 전통 의상은?",
+                    options: ["기모노", "한복", "치파오", "사리"],
+                    correct: 1
+                },
+                {
+                    question: "세계에서 가장 높은 산은?",
+                    options: ["에베레스트", "K2", "킬리만자로", "후지산"],
+                    correct: 0
+                }
+            ],
+            4: [
+                {
+                    question: "물의 끓는점은?",
+                    options: ["90도", "95도", "100도", "105도"],
+                    correct: 2
+                },
+                {
+                    question: "한국전쟁이 일어난 연도는?",
+                    options: ["1949년", "1950년", "1951년", "1952년"],
+                    correct: 1
+                }
+            ],
+            5: [
+                {
+                    question: "컴퓨터의 'CPU'는 무엇의 줄임말인가요?",
+                    options: ["Computer Processing Unit", "Central Processing Unit", "Central Program Unit", "Computer Program Unit"],
+                    correct: 1
+                },
+                {
+                    question: "인터넷의 WWW는 무엇의 줄임말인가요?",
+                    options: ["World Wide Web", "World Web Wide", "Web World Wide", "Wide World Web"],
+                    correct: 0
+                }
+            ],
+            6: [
+                {
+                    question: "한국의 국화는?",
+                    options: ["장미", "무궁화", "벚꽃", "국화"],
+                    correct: 1
+                },
+                {
+                    question: "태극기의 색깔은 몇 가지인가요?",
+                    options: ["2가지", "3가지", "4가지", "5가지"],
+                    correct: 1
+                }
+            ],
+            7: [
+                {
+                    question: "인체에서 가장 큰 장기는?",
+                    options: ["심장", "폐", "간", "피부"],
+                    correct: 3
+                },
+                {
+                    question: "빛의 삼원색은?",
+                    options: ["빨강, 노랑, 파랑", "빨강, 초록, 파랑", "노랑, 초록, 보라", "빨강, 초록, 노랑"],
+                    correct: 1
+                }
+            ],
+            8: [
+                {
+                    question: "세계에서 가장 긴 강은?",
+                    options: ["아마존강", "나일강", "미시시피강", "양쯔강"],
+                    correct: 1
+                },
+                {
+                    question: "피자의 원산지는?",
+                    options: ["프랑스", "이탈리아", "스페인", "그리스"],
+                    correct: 1
+                }
+            ],
+            9: [
+                {
+                    question: "올림픽이 몇 년마다 열리나요?",
+                    options: ["2년", "3년", "4년", "5년"],
+                    correct: 2
+                },
+                {
+                    question: "축구에서 한 팀의 선수는 몇 명인가요?",
+                    options: ["10명", "11명", "12명", "13명"],
+                    correct: 1
+                }
+            ],
+            10: [
+                {
+                    question: "한국의 화폐 단위는?",
+                    options: ["달러", "엔", "위안", "원"],
+                    correct: 3
+                },
+                {
+                    question: "김치의 주 재료는?",
+                    options: ["무", "배추", "오이", "양파"],
+                    correct: 1
+                }
+            ]
+        };
+
+        // 게임 상태
+        let currentUser = '';
+        let currentStation = 0;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer = 30;
+        let timerInterval;
+        let gameData = JSON.parse(localStorage.getItem('treasureHuntData') || '[]');
+
+        // 게임 시작
+        function startQuiz() {
+            const userName = document.getElementById('userName').value.trim();
+            const stationId = parseInt(document.getElementById('stationId').value);
+
+            if (!userName) {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+
+            if (!stationId || stationId < 1 || stationId > 10) {
+                alert('올바른 스테이션 번호(1-10)를 입력해주세요!');
+                return;
+            }
+
+            currentUser = userName;
+            currentStation = stationId;
+            currentQuestionIndex = 0;
+            score = 0;
+
+            // 이미 완료한 스테이션인지 확인
+            const existingUser = gameData.find(user => user.name === userName);
+            if (existingUser && existingUser.completedStations.includes(stationId)) {
+                alert('이미 완료한 스테이션입니다!');
+                return;
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            
+            showQuestion();
+            updateRanking();
+            startTimer();
+        }
+
+        // 문제 표시
+        function showQuestion() {
+            const questions = quizData[currentStation];
+            const question = questions[currentQuestionIndex];
+            
+            document.getElementById('question').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            // 진행률 업데이트
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+
+            // 버튼 숨기기
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+        }
+
+        // 옵션 선택
+        function selectOption(selectedIndex) {
+            const questions = quizData[currentStation];
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+
+            // 모든 옵션 비활성화
+            options.forEach((option, index) => {
+                option.onclick = null;
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    option.classList.add('wrong');
+                }
+            });
+
+            // 점수 계산
+            if (selectedIndex === question.correct) {
+                score += 100;
+                createConfetti();
+            }
+
+            // 타이머 정지
+            clearInterval(timerInterval);
+
+            // 다음 문제 또는 완료 버튼 표시
+            if (currentQuestionIndex < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('finishBtn').style.display = 'inline-block';
+            }
+
+            updateUserData();
+        }
+
+        // 다음 문제
+        function nextQuestion() {
+            currentQuestionIndex++;
+            timer = 30;
+            showQuestion();
+            startTimer();
+        }
+
+        // 타이머 시작
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                timer--;
+                timerElement.textContent = timer;
+                
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    // 시간 초과 시 틀린 것으로 처리
+                    const options = document.querySelectorAll('.option');
+                    const question = quizData[currentStation][currentQuestionIndex];
+                    
+                    options.forEach((option, index) => {
+                        option.onclick = null;
+                        if (index === question.correct) {
+                            option.classList.add('correct');
+                        }
+                    });
+
+                    if (currentQuestionIndex < quizData[currentStation].length - 1) {
+                        document.getElementById('nextBtn').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('finishBtn').style.display = 'inline-block';
+                    }
+
+                    updateUserData();
+                }
+            }, 1000);
+        }
+
+        // 사용자 데이터 업데이트
+        function updateUserData() {
+            let existingUser = gameData.find(user => user.name === currentUser);
+            
+            if (!existingUser) {
+                existingUser = {
+                    name: currentUser,
+                    totalScore: 0,
+                    completedStations: [],
+                    timestamp: Date.now()
+                };
+                gameData.push(existingUser);
+            }
+
+            if (!existingUser.completedStations.includes(currentStation)) {
+                existingUser.completedStations.push(currentStation);
+                existingUser.totalScore += score;
+                existingUser.timestamp = Date.now();
+            }
+
+            localStorage.setItem('treasureHuntData', JSON.stringify(gameData));
+            updateRanking();
+        }
+
+        // 순위 업데이트
+        function updateRanking() {
+            const sortedUsers = [...gameData].sort((a, b) => {
+                if (b.totalScore !== a.totalScore) {
+                    return b.totalScore - a.totalScore;
+                }
+                return a.timestamp - b.timestamp;
+            });
+
+            const currentUserRank = sortedUsers.findIndex(user => user.name === currentUser) + 1;
+            const rankElement = document.getElementById('currentRank');
+            if (rankElement) {
+                rankElement.textContent = `현재 순위: ${currentUserRank || '-'}위`;
+            }
+        }
+
+        // 결과 표시
+        function showResults() {
+            clearInterval(timerInterval);
+            
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            document.getElementById('resultsScreen').style.display = 'block';
+
+            const currentUserData = gameData.find(user => user.name === currentUser);
+            document.getElementById('finalScore').textContent = 
+                `스테이션 ${currentStation} 점수: ${score}점 | 총점: ${currentUserData?.totalScore || 0}점`;
+
+            const sortedUsers = [...gameData].sort((a, b) => {
+                if (b.totalScore !== a.totalScore) {
+                    return b.totalScore - a.totalScore;
+                }
+                return a.timestamp - b.timestamp;
+            });
+
+            const currentUserRank = sortedUsers.findIndex(user => user.name === currentUser) + 1;
+            document.getElementById('finalRank').textContent = `최종 순위: ${currentUserRank}위`;
+
+            showLeaderboard();
+
+            if (currentUserRank === 1) {
+                createMegaConfetti();
+            }
+        }
+
+        // 리더보드 표시
+        function showLeaderboard() {
+            const sortedUsers = [...gameData].sort((a, b) => {
+                if (b.totalScore !== a.totalScore) {
+                    return b.totalScore - a.totalScore;
+                }
+                return a.timestamp - b.timestamp;
+            });
+
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = '';
+
+            sortedUsers.slice(0, 10).forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}위`;
+                
+                item.innerHTML = `
+                    <span>${medal} ${user.name}</span>
+                    <span>${user.totalScore}점 (${user.completedStations.length}개 완료)</span>
+                `;
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        // 게임 재시작
+        function restartGame() {
+            document.getElementById('resultsScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            
+            // 입력 필드 초기화
+            document.getElementById('userName').value = '';
+            document.getElementById('stationId').value = '';
+            
+            // 게임 상태 초기화
+            currentUser = '';
+            currentStation = 0;
+            currentQuestionIndex = 0;
+            score = 0;
+            timer = 30;
+            
+            clearInterval(timerInterval);
+        }
+
+        // 축하 효과
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'][Math.floor(Math.random() * 5)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function createMegaConfetti() {
+            const celebration = document.getElementById('celebration');
+            for (let i = 0; i < 200; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = ['#ffd700', '#feca57', '#ff6b6b'][Math.floor(Math.random() * 3)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                celebration.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // 페이지 로드 시 URL 파라미터 확인
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const station = urlParams.get('station');
+            
+            if (station) {
+                document.getElementById('stationId').value = station;
+            }
+        };
+    </script>
+</body>
+</html>
